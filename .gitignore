@@ -20,9 +20,6 @@ htmlcov/
 .tox/
 
 # ---------- Django ----------
-db.sqlite3
-db.sqlite3-journal
-*.sqlite3
 /media/
 /staticfiles/
 *.log
