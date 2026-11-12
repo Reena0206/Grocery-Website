@@ -1,0 +1,214 @@
+{% load static store_extras %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="csrf-token" content="{{ csrf_token }}" />
+  <title>{% block title %}eGrocery – Fresh Groceries, Delivered Daily{% endblock %}</title>
+  <meta name="description" content="{% block description %}Order fresh fruits, vegetables, meat and daily essentials online with free delivery.{% endblock %}" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛒</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,600;1,700&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/components.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/pages.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/hero.css' %}" />
+  <script>
+    try {
+      const t = localStorage.getItem("eg-theme") ||
+        (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  </script>
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+  <!-- ================= ANNOUNCEMENT BAR ================= -->
+  {% if site.show_announcement and site.announcement %}
+  <div class="topbar" id="topbar">
+    <div class="container topbar-inner">
+      <p><i class="fa-solid fa-truck-fast"></i> {{ site.announcement }}</p>
+      <button class="topbar-close" id="topbarClose" aria-label="Dismiss"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ================= HEADER ================= -->
+  <header class="header" id="header">
+    <div class="container nav">
+      <a href="{% url 'home' %}" class="logo"><span class="logo-mark"><i class="fa-solid fa-basket-shopping"></i></span><span class="logo-e">e</span>Grocery</a>
+
+      <nav class="nav-menu" id="navMenu">
+        <a href="{% url 'home' %}" class="nav-link" data-section="home">Home</a>
+        <a href="{% url 'shop' %}" class="nav-link{% if request.resolver_match.url_name == 'shop' or request.resolver_match.url_name == 'shop_category' %} active{% endif %}">Shop</a>
+        <a href="{% url 'home' %}#categories" class="nav-link" data-section="categories">Categories</a>
+        <a href="{% url 'home' %}#deal" class="nav-link" data-section="deal">Deals</a>
+        <a href="{% url 'home' %}#packages" class="nav-link" data-section="packages">Bundles</a>
+      </nav>
+
+      <div class="nav-icons">
+        <button class="icon-btn" id="themeBtn" aria-label="Toggle dark mode"><i class="fa-solid fa-moon"></i></button>
+        <button class="icon-btn icon-red" id="wishBtn" aria-label="Wishlist">
+          <i class="fa-regular fa-heart"></i>
+          <span class="badge badge-red" id="wishCount">{{ store_state.wishlist|length }}</span>
+        </button>
+        <button class="icon-btn icon-green" id="cartBtn" aria-label="Cart">
+          <i class="fa-solid fa-cart-shopping"></i>
+          <span class="badge" id="cartCount">{{ store_state.cart.count }}</span>
+        </button>
+
+        <div class="user-menu" id="userMenu">
+          {% if user.is_authenticated %}
+            <button class="icon-btn avatar-btn" id="userBtn" aria-label="Account" aria-expanded="false">
+              {{ user.first_name|default:user.username|first|upper }}
+            </button>
+            <div class="user-drop" id="userDrop">
+              <div class="user-head">
+                <b>{{ user.get_full_name|default:user.username }}</b>
+                <small>{{ user.email }}</small>
+              </div>
+              <a href="{% url 'my_orders' %}"><i class="fa-solid fa-receipt"></i> My Orders</a>
+              <button type="button" data-open="wishDrawer"><i class="fa-regular fa-heart"></i> Wishlist</button>
+              {% if user.is_staff %}<a href="{% url 'admin:index' %}"><i class="fa-solid fa-gauge"></i> Admin Dashboard</a>{% endif %}
+              <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log out</button>
+              </form>
+            </div>
+          {% else %}
+            <a class="icon-btn" href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}" aria-label="Log in"><i class="fa-regular fa-user"></i></a>
+          {% endif %}
+        </div>
+
+        <button class="icon-btn menu-toggle" id="menuToggle" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="{% url 'home' %}" class="logo logo-light"><span class="logo-mark"><i class="fa-solid fa-basket-shopping"></i></span><span class="logo-e">e</span>Grocery</a>
+        <p class="f-about">{{ site.footer_about }}</p>
+        <div class="socials">
+          {% if site.facebook_url %}<a href="{{ site.facebook_url }}" target="_blank" rel="noopener" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>{% endif %}
+          {% if site.twitter_url %}<a href="{{ site.twitter_url }}" target="_blank" rel="noopener" aria-label="X"><i class="fa-brands fa-x-twitter"></i></a>{% endif %}
+          {% if site.instagram_url %}<a href="{{ site.instagram_url }}" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>{% endif %}
+          {% if site.youtube_url %}<a href="{{ site.youtube_url }}" target="_blank" rel="noopener" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>{% endif %}
+        </div>
+      </div>
+      <div>
+        <h4>Shop</h4>
+        <a href="{% url 'shop' %}">All Products</a>
+        <a href="{% url 'home' %}#products">Popular</a>
+        <a href="{% url 'home' %}#packages">Bundle Packs</a>
+        <a href="{% url 'home' %}#deal">Deal of the Day</a>
+        {% if user.is_authenticated %}<a href="{% url 'my_orders' %}">My Orders</a>{% else %}<a href="{% url 'signup' %}">Create Account</a>{% endif %}
+      </div>
+      <div>
+        <h4>Category</h4>
+        {% for c in menu_categories|slice:":5" %}
+          <a href="{% url 'shop_category' c.slug %}">{{ c.name }}</a>
+        {% endfor %}
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <p><i class="fa-solid fa-phone"></i> <a href="tel:{{ site.phone|cut:' ' }}">{{ site.phone }}</a></p>
+        <p><i class="fa-solid fa-envelope"></i> <a href="mailto:{{ site.email }}">{{ site.email }}</a></p>
+        <p><i class="fa-solid fa-location-dot"></i> {{ site.address }}</p>
+        <div class="pay">
+          <i class="fa-brands fa-cc-visa" title="Visa"></i><i class="fa-brands fa-cc-mastercard" title="Mastercard"></i><i class="fa-solid fa-money-bill-wave" title="Cash on delivery"></i><i class="fa-solid fa-mobile-screen-button" title="UPI"></i>
+        </div>
+      </div>
+    </div>
+    <div class="copy">© <span id="year"></span> eGrocery. Made with <i class="fa-solid fa-heart"></i> for fresh food lovers. · <a href="{% static 'images/CREDITS.txt' %}">Image credits</a></div>
+  </footer>
+
+  <!-- ================= CART DRAWER ================= -->
+  <div class="overlay" id="overlay"></div>
+  <aside class="drawer" id="cartDrawer" aria-label="Shopping cart">
+    <div class="drawer-head">
+      <h3><i class="fa-solid fa-cart-shopping"></i> Your Cart <small id="cartHeadCount"></small></h3>
+      <button class="close-btn" data-close aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="ship-progress" id="shipProgress">
+      <p id="shipMsg"></p>
+      <div class="bar"><span id="shipBar"></span></div>
+    </div>
+    <div class="drawer-body cart-body">
+      <div id="cartItems"></div>
+      <!-- offers & promo scroll with the items, so the item list is never squeezed -->
+      <div class="cart-extras" id="cartExtras" hidden>
+        <div class="offers" id="cartOffers" hidden></div>
+        <form class="promo" id="promoForm">
+          <i class="fa-solid fa-tag"></i>
+          <input type="text" id="promoInput" placeholder="Have a promo code?" aria-label="Promo code" autocomplete="off" />
+          <button type="submit">Apply</button>
+        </form>
+        <p class="promo-msg" id="promoNote" hidden></p>
+      </div>
+    </div>
+    <div class="drawer-foot" id="cartFoot">
+      <div class="row"><span>Subtotal</span><b id="cartSubtotal">₹0</b></div>
+      <div class="row" id="discountRow" hidden><span>Discount <em id="promoLabel"></em> <button type="button" class="promo-x" id="promoRemove" aria-label="Remove promo"><i class="fa-solid fa-xmark"></i></button></span><b class="green" id="cartDiscount">-₹0</b></div>
+      <div class="row"><span>Delivery</span><b id="cartDelivery">Free</b></div>
+      <div class="row total"><span>Total</span><b id="cartTotal">₹0</b></div>
+      <a class="btn btn-block" href="{% url 'checkout' %}">Checkout <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+  </aside>
+
+  <aside class="drawer" id="wishDrawer" aria-label="Wishlist">
+    <div class="drawer-head">
+      <h3><i class="fa-solid fa-heart"></i> Wishlist</h3>
+      <button class="close-btn" data-close aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    {% if not user.is_authenticated %}
+      <p class="drawer-note"><a href="{% url 'login' %}">Log in</a> to keep your wishlist on every device.</p>
+    {% endif %}
+    <div class="drawer-body" id="wishItems"></div>
+  </aside>
+
+  <!-- ================= QUICK VIEW MODAL ================= -->
+  <div class="modal" id="quickView" role="dialog" aria-modal="true" aria-label="Product details">
+    <div class="modal-box qv">
+      <button class="close-btn modal-close" data-close aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+      <div class="qv-img"><img id="qvImg" src="" alt="" /></div>
+      <div class="qv-info">
+        <span class="eyebrow" id="qvCat"></span>
+        <h3 id="qvName"></h3>
+        <div class="rating" id="qvRating"></div>
+        <div class="qv-price"><b id="qvPrice"></b><s id="qvOld"></s></div>
+        <p id="qvDesc"></p>
+        <ul class="qv-points" id="qvPoints"></ul>
+        <div class="qv-actions">
+          <div class="stepper big">
+            <button id="qvMinus" aria-label="Decrease">−</button><span id="qvQty">1</span><button id="qvPlus" aria-label="Increase">+</button>
+          </div>
+          <button class="btn" id="qvAdd"><i class="fa-solid fa-bag-shopping"></i> Add To Cart</button>
+        </div>
+        <a class="qv-more" id="qvLink" href="#">View full details <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+    </div>
+  </div>
+
+  <button class="to-top" id="toTop" aria-label="Back to top"><i class="fa-solid fa-arrow-up"></i></button>
+  <div class="toast" id="toast"></div>
+
+  {% if messages %}
+    <ul id="flash" hidden>
+      {% for m in messages %}<li data-level="{{ m.tags }}">{{ m }}</li>{% endfor %}
+    </ul>
+  {% endif %}
+
+  {{ store_state|json_script:"store-data" }}
+  <script src="{% static 'js/script.js' %}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

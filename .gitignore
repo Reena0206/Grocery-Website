@@ -1,0 +1,45 @@
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Testing / coverage
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.tox/
+
+# ---------- Django ----------
+db.sqlite3
+db.sqlite3-journal
+*.sqlite3
+/media/
+/staticfiles/
+*.log
+
+# ---------- Secrets ----------
+.env
+.env.*
+!.env.example
+
+# ---------- OS / editors ----------
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*~
+
+# ---------- Claude Code local settings ----------
+.claude/

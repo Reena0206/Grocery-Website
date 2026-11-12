@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}{% if category %}{{ category.display_title }}{% else %}All Categories{% endif %} – eGrocery{% endblock %}
+{% block description %}Shop {% if category %}{{ category.display_title|lower }}{% else %}fruits, vegetables, meat, dairy, health, beauty, office and garden essentials{% endif %} online at eGrocery with fast delivery.{% endblock %}
+{% block body_class %}page-shop{% endblock %}
+
+{% block content %}
+<section class="page container" id="shopPage" data-initial-cat="{{ category.slug|default:'' }}" data-q="{{ request.GET.q }}">
+  <nav class="crumbs">
+    <a href="{% url 'home' %}">Home</a><i class="fa-solid fa-chevron-right"></i>
+    <a href="{% url 'shop' %}">Shop</a>
+    <span id="crumbCat" {% if not category %}hidden{% endif %}><i class="fa-solid fa-chevron-right"></i> <b>{{ category.display_title }}</b></span>
+  </nav>
+
+  <div class="shop-hero">
+    <div>
+      <span class="eyebrow">Shop</span>
+      <h1 id="shopTitle">{% if category %}{{ category.display_title }}{% else %}All Categories{% endif %}</h1>
+      <p>Fresh picks and daily essentials — delivered in 30 minutes.</p>
+    </div>
+    <label class="search-box shop-search">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="search" id="shopSearch" placeholder="Search in the shop…" value="{{ request.GET.q }}" aria-label="Search products" />
+    </label>
+  </div>
+
+  <div class="shop">
+    <!-- sidebar -->
+    <aside class="shop-side" id="shopSide">
+      <div class="side-box">
+        <h4>Categories</h4>
+        <div class="side-cats">
+          <button class="side-cat" data-shop-cat=""><i class="fa-solid fa-border-all"></i> All products <span id="allCount"></span></button>
+          {% for c in menu_categories %}
+            <button class="side-cat" data-shop-cat="{{ c.slug }}" data-title="{{ c.display_title }}"><i class="{{ c.icon }}"></i> {{ c.name }} <span data-side-count="{{ c.slug }}"></span></button>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="side-box">
+        <h4>Price</h4>
+        <div class="range-row"><span>Up to</span><b id="priceLabel">₹0</b></div>
+        <input type="range" id="priceRange" min="1" max="25" step="1" value="25" aria-label="Maximum price" />
+      </div>
+
+      <div class="side-box">
+        <h4>Show only</h4>
+        <label class="check"><input type="checkbox" id="onlySale" /> On sale</label>
+        <label class="check"><input type="checkbox" id="onlyNew" /> New arrivals</label>
+        <label class="check"><input type="checkbox" id="onlyStock" /> In stock</label>
+        <button class="reset-link" id="resetFilters" type="button" style="margin-top:8px">Reset all filters</button>
+      </div>
+    </aside>
+
+    <!-- results -->
+    <div>
+      <div class="shop-toolbar">
+        <p><b id="resultCount">0</b> products</p>
+        <div class="head-tools">
+          <button class="filter-toggle" id="filterToggle" type="button"><i class="fa-solid fa-sliders"></i> Filters</button>
+          <label class="sort">
+            <i class="fa-solid fa-arrow-down-wide-short"></i>
+            <select id="shopSort" aria-label="Sort products">
+              <option value="default">Featured</option>
+              <option value="low">Price: Low to High</option>
+              <option value="high">Price: High to Low</option>
+              <option value="rating">Top Rated</option>
+              <option value="name">Name A–Z</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <div class="product-grid" id="shopGrid"></div>
+      <div class="empty" id="shopEmpty" hidden>
+        <i class="fa-solid fa-basket-shopping"></i>
+        <p>No products match these filters.</p>
+        <button class="btn btn-ghost" id="shopEmptyReset">Clear filters</button>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

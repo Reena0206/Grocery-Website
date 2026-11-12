@@ -1,0 +1,16 @@
+# Normalise line endings in the repository
+* text=auto
+
+# Shell scripts must keep LF endings or they fail on Linux hosts (Render, VPS)
+*.sh text eol=lf
+Procfile text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.mp4 binary
+*.sqlite3 binary

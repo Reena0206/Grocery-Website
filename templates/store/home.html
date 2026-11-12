@@ -1,0 +1,309 @@
+{% extends "base.html" %}
+{% load store_extras %}
+{% load static %}
+{% block body_class %}page-home{% endblock %}
+
+{% block content %}
+  <!-- ================= HERO (bento) ================= -->
+  <section class="hero" id="home">
+    <div class="container hero-grid">
+
+      <!-- left: message + search -->
+      <div class="hero-copy">
+        <span class="hero-badge"><i class="fa-solid fa-bolt"></i> {{ site.hero_badge }}</span>
+
+        <h1>{{ site.hero_title }}<br /><em>{{ site.hero_highlight }}</em> {{ site.hero_title_end }}</h1>
+
+        <p class="hero-lead">{{ site.hero_subtitle }}</p>
+
+        <form class="search-box" id="searchForm" autocomplete="off" action="{% url 'shop' %}" role="search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" name="q" id="searchInput" placeholder="What do you need today?" value="{{ request.GET.q }}" aria-label="Search products" />
+          <button type="submit" class="btn">Search</button>
+          <ul class="suggest" id="suggest" hidden></ul>
+        </form>
+
+        <div class="quick-cats">
+          {% for c in categories|slice:":4" %}
+            <a class="qc" href="{% url 'shop_category' c.slug %}"><i class="{{ c.icon }}"></i>{{ c.name }}</a>
+          {% endfor %}
+        </div>
+
+        <div class="hero-trust">
+          <div class="avatars">
+            <img src="{% static 'images/client-1.jpg' %}" alt="" />
+            <img src="{% static 'images/client-2.jpg' %}" alt="" />
+            <img src="{% static 'images/client-3.jpg' %}" alt="" />
+          </div>
+          <p><span class="trust-stars"><i class="fa-solid fa-star"></i> <b>{{ site.store_rating }}</b></span> from <b>{{ site.happy_customers }}</b> happy customers</p>
+        </div>
+      </div>
+
+      <!-- right: bento tiles -->
+      <div class="bento">
+        <a class="tile tile-bundle" href="#packages">
+          <div class="tile-text">
+            <span class="tile-tag">Best value</span>
+            <h3>Weekly<br />bundle boxes</h3>
+            {% if bundle_from %}<p>From <b>{{ bundle_from|inr }}</b></p>{% endif %}
+          </div>
+          <span class="tile-go" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
+          <picture>
+            <source srcset="{% static 'images/hero-basket.webp' %}" type="image/webp" />
+            <img class="tile-img" src="{% static 'images/hero-basket.png' %}" alt="" width="1016" height="524" fetchpriority="high" />
+          </picture>
+        </a>
+
+        <a class="tile tile-fruit" href="{% url 'shop_category' 'vegetables' %}">
+          <div class="tile-text">
+            {% if veg_max_off %}<span class="tile-tag">Up to {{ veg_max_off }}% off</span>{% endif %}
+            <h3>Fresh fruits<br />&amp; veggies</h3>
+            {% if category_counts.vegetables %}<p>{{ category_counts.vegetables }} items</p>{% endif %}
+          </div>
+          <span class="tile-go" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
+          <div class="fruit-stack" aria-hidden="true">
+            <img class="fs1" src="{% static 'images/orange.png' %}" alt="" />
+            <img class="fs2" src="{% static 'images/strawberries.png' %}" alt="" />
+            <img class="fs3" src="{% static 'images/banana.png' %}" alt="" />
+          </div>
+        </a>
+
+        <a class="tile tile-dairy" href="{% url 'shop_category' 'baby' %}">
+          <div class="tile-text">
+            <h3>Dairy &amp; eggs</h3>
+            <p>Delivered chilled</p>
+          </div>
+          <span class="tile-go" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
+          <img class="dairy-img" src="{% static 'images/milk.png' %}" alt="" />
+          <img class="dairy-img2" src="{% static 'images/eggs.png' %}" alt="" />
+        </a>
+
+        <div class="tile tile-delivery">
+          <i class="fa-solid fa-truck-fast"></i>
+          <b><span data-count="{{ site.delivery_minutes }}">{{ site.delivery_minutes }}</span><small>min</small></b>
+          <p>Average delivery<br />Free over {{ free_delivery_over|inr }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CATEGORY ================= -->
+  <section class="section" id="categories">
+    <div class="container">
+      <div class="section-head reveal">
+        <div><span class="eyebrow">Browse the aisles</span><h2>Shop by Category</h2></div>
+        <a href="{% url 'shop' %}" class="see-all">View all <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+      <div class="category-list reveal" id="categoryList">
+        {% for c in categories %}
+          <a class="cat-card" href="{% url 'shop_category' c.slug %}">
+            <span class="cat-ic"><i class="{{ c.icon }}"></i></span>
+            <span class="cat-name">{{ c.name }}</span>
+            <small>{% if c.count %}{{ c.count }} item{{ c.count|pluralize }}{% else %}Coming soon{% endif %}</small>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PRODUCTS ================= -->
+  <section class="section" id="products">
+    <div class="container">
+      <div class="section-head reveal">
+        <div><span class="eyebrow">Customer favourites</span><h2>Popular Products</h2></div>
+        <a href="{% url 'shop' %}" class="see-all">View all products <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+      <div class="product-grid" id="productGrid"></div>
+    </div>
+  </section>
+
+  <!-- ================= DEAL OF THE DAY ================= -->
+  {% if deal %}
+  {% with p=deal.product %}
+  <section class="section" id="deal">
+    <div class="container">
+      <div class="deal reveal">
+        <!-- left: offer details -->
+        <div class="deal-info">
+          <div class="deal-top">
+            <span class="deal-label"><i class="fa-solid fa-fire-flame-curved"></i> Deal of the day</span>
+            <div class="countdown" id="countdown" aria-label="Offer ends in">
+              <span class="cd-text">Ends in</span>
+              <b id="cdH">00</b><i>:</i><b id="cdM">00</b><i>:</i><b id="cdS">00</b>
+            </div>
+          </div>
+
+          <h2>{{ deal.headline }}</h2>
+          <div class="deal-meta">
+            <span>{{ p.unit }}</span><span class="dot"></span>
+            <span><i class="fa-solid fa-star"></i> {{ p.rating }}</span><span class="dot"></span>
+            <span>{{ p.category.display_title }}</span>
+          </div>
+          <p class="deal-text">{{ deal.text }}</p>
+
+          <div class="deal-price">
+            <b>{{ p.price|inr }}</b>
+            {% if p.old_price %}
+              <s>{{ p.old_price|inr }}</s>
+              <span class="save-pill">You save {{ p.savings|inr }}</span>
+            {% endif %}
+          </div>
+
+          <div class="deal-stock">
+            <div class="deal-stock-row">
+              {% if p.stock < 50 %}<span><i class="fa-solid fa-bolt"></i> Hurry! Only <b>{{ p.stock }}</b> left</span>
+              {% else %}<span><i class="fa-solid fa-circle-check"></i> In stock — ready to ship</span>{% endif %}
+              <small>Limited offer</small>
+            </div>
+            <div class="deal-bar"><span style="width: {% widthratio p.stock 100 100 %}%"></span></div>
+          </div>
+
+          <div class="deal-actions">
+            <button class="btn deal-btn" data-add="{{ p.id }}"><i class="fa-solid fa-bag-shopping"></i> Add to cart</button>
+            <a class="deal-link" href="{{ p.get_absolute_url }}">View details <i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <!-- right: product -->
+        <div class="deal-visual">
+          <span class="deal-glow" aria-hidden="true"></span>
+          <img class="deal-img" src="{{ p.image.url }}" alt="{{ p.name }}" />
+          {% if p.discount_percent %}
+            <span class="deal-off"><b>{{ p.discount_percent }}%</b><small>OFF</small></span>
+          {% endif %}
+          <span class="deal-chip c1"><i class="fa-solid fa-sun"></i> Picked today</span>
+          <span class="deal-chip c2"><i class="fa-solid fa-leaf"></i> 100% organic</span>
+        </div>
+      </div>
+    </div>
+  </section>
+  {% endwith %}
+  {% endif %}
+
+  <!-- ================= BEST OF EACH CATEGORY (tabs) ================= -->
+  <section class="section" id="aisles">
+    <div class="container">
+      <div class="section-head reveal">
+        <div><span class="eyebrow">Explore every aisle</span><h2>Best of Each Category</h2></div>
+        <div class="cat-row-tools">
+          <button class="row-arrow" data-scroll="-1" aria-label="Scroll left"><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="row-arrow" data-scroll="1" aria-label="Scroll right"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+      <div class="tabs" id="aisleTabs" role="tablist" aria-label="Categories">
+        {% for c in categories %}{% if c.count %}
+          <button class="tab" role="tab" data-tab="{{ c.slug }}" aria-selected="false"><i class="{{ c.icon }}"></i> {{ c.name }}</button>
+        {% endif %}{% endfor %}
+      </div>
+      <div class="scroller" id="aisleRow" role="tabpanel"></div>
+      <div class="aisle-foot"><a class="view-all" id="aisleLink" href="{% url 'shop' %}">View all</a></div>
+    </div>
+  </section>
+
+  <!-- ================= BUNDLE PACK ================= -->
+  <section class="section" id="packages">
+    <div class="container">
+      <div class="bundle-wrap reveal">
+        <div class="section-head">
+          <div><span class="eyebrow">Save more</span><h2>Bundle Packs</h2><p class="section-sub">Ready-made boxes for the week, cheaper than buying each item separately.</p></div>
+        </div>
+        <div class="product-grid" id="bundleGrid"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= HOW IT WORKS ================= -->
+  <section class="section">
+    <div class="container">
+      <div class="center-head reveal">
+        <span class="eyebrow">Simple &amp; quick</span>
+        <h2>How eGrocery Works</h2>
+      </div>
+      <div class="steps reveal">
+        <div class="step"><span class="step-no">01</span><i class="fa-solid fa-magnifying-glass"></i><h4>Browse Products</h4><p>Find fresh groceries from hundreds of local farms.</p></div>
+        <div class="step"><span class="step-no">02</span><i class="fa-solid fa-cart-plus"></i><h4>Add to Cart</h4><p>Pick your items or grab a ready-made bundle pack.</p></div>
+        <div class="step"><span class="step-no">03</span><i class="fa-solid fa-truck-fast"></i><h4>Fast Delivery</h4><p>Get it at your door in as little as 30 minutes.</p></div>
+      </div>
+      <div class="features promises reveal">
+        <div class="feature"><span><i class="fa-solid fa-truck-fast"></i></span><div><h4>Free Delivery</h4><p>On orders over {{ free_delivery_over|inr }}</p></div></div>
+        <div class="feature"><span><i class="fa-solid fa-seedling"></i></span><div><h4>Always Fresh</h4><p>Picked daily from farms</p></div></div>
+        <div class="feature"><span><i class="fa-solid fa-hand-holding-dollar"></i></span><div><h4>Pay on Delivery</h4><p>Cash or card at your door</p></div></div>
+        <div class="feature"><span><i class="fa-solid fa-rotate-left"></i></span><div><h4>Easy Returns</h4><p>Not fresh? We replace it</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TESTIMONIALS ================= -->
+  {% if testimonials %}
+  <section class="section">
+    <div class="container">
+      <div class="center-head reveal">
+        <span class="eyebrow">Testimonials</span>
+        <h2>What Our Customers Say</h2>
+      </div>
+      <div class="testimonials reveal">
+        {% for t in testimonials %}
+        <article class="t-card">
+          <i class="fa-solid fa-quote-right t-quote"></i>
+          <div class="stars">{% for s in t.stars %}<i class="fa-{% if s == 'empty' %}regular{% else %}solid{% endif %} fa-star{% if s == 'half' %}-half-stroke{% endif %}"></i>{% endfor %}</div>
+          <p>{{ t.text }}</p>
+          <div class="t-user">
+            {% if t.photo %}<img src="{{ t.photo.url }}" alt="{{ t.name }}" />{% else %}<span class="t-initial">{{ t.name|first }}</span>{% endif %}
+            <div><h4>{{ t.name }}</h4><small>{{ t.role }}</small></div>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- ================= DOWNLOAD APP ================= -->
+  <section class="section" id="app">
+    <div class="container">
+      <div class="app-banner reveal">
+        <div class="phone">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="ph-top"><strong>Ordering Menu</strong><i class="fa-solid fa-bag-shopping"></i></div>
+            <div class="ph-tabs"><span class="on">Vegetables</span><span>Fruits</span><span>Meat</span></div>
+            <div class="ph-item"><img src="{% static 'images/broccoli.png' %}" alt="" /><div><b>Broccoli</b><small>₹90 / pc</small></div><em>+</em></div>
+            <div class="ph-item"><img src="{% static 'images/carrots.png' %}" alt="" /><div><b>Carrots</b><small>₹60 / kg</small></div><em>+</em></div>
+            <div class="ph-item"><img src="{% static 'images/tomato.png' %}" alt="" /><div><b>Tomato</b><small>₹40 / kg</small></div><em>+</em></div>
+            <div class="ph-btn">Checkout</div>
+          </div>
+        </div>
+        <div class="app-text">
+          <span class="eyebrow">Coming soon</span>
+          <h2>eGrocery in your pocket</h2>
+          <p>Shop fresh fruits, vegetables, meat and daily essentials anytime, anywhere. Track orders live, save favourites and enjoy app-only discounts.</p>
+          <ul class="checks">
+            <li><i class="fa-solid fa-circle-check"></i> Live order tracking</li>
+            <li><i class="fa-solid fa-circle-check"></i> Exclusive app-only deals</li>
+            <li><i class="fa-solid fa-circle-check"></i> One-tap reorder</li>
+          </ul>
+          <div class="store-btns">
+            <span class="store soon"><i class="fa-brands fa-apple"></i><span><small>Coming soon on</small>App Store</span></span>
+            <span class="store soon"><i class="fa-brands fa-google-play"></i><span><small>Coming soon on</small>Google Play</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= NEWSLETTER ================= -->
+  <section class="section">
+    <div class="container">
+      <div class="newsletter reveal">
+        <div>
+          <h3>Get <span>10% off</span> your first order</h3>
+          <p>Subscribe for weekly deals, seasonal picks and healthy recipes.</p>
+        </div>
+        <form id="newsForm" class="news-form">
+          <input type="email" id="newsEmail" placeholder="Enter your email address" required />
+          <button class="btn" type="submit">Subscribe</button>
+        </form>
+      </div>
+    </div>
+  </section>
+{% endblock %}

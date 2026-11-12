@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load store_extras %}
+{% block title %}My Orders – eGrocery{% endblock %}
+
+{% block content %}
+<section class="page container narrow">
+  <div class="page-head">
+    <span class="eyebrow">Account</span>
+    <h1>My Orders</h1>
+  </div>
+
+  {% for order in orders %}
+    <a class="panel order-row" href="{{ order.get_absolute_url }}">
+      <div class="order-thumbs">
+        {% for item in order.items.all|slice:":3" %}
+          {% if item.product and item.product.image %}<img src="{{ item.product.image.url }}" alt="{{ item.name }}">{% endif %}
+        {% endfor %}
+      </div>
+      <div class="order-meta">
+        <b>{{ order.number }}</b>
+        <small class="muted">{{ order.created_at|date:"M j, Y" }} · {{ order.item_count }} item{{ order.item_count|pluralize }}</small>
+      </div>
+      <span class="status status-{{ order.status }}">{{ order.get_status_display }}</span>
+      <b class="order-total">{{ order.total|inr }}</b>
+      <i class="fa-solid fa-chevron-right muted"></i>
+    </a>
+  {% empty %}
+    <div class="panel empty">
+      <i class="fa-solid fa-receipt"></i>
+      <p>You haven't placed any orders yet.</p>
+      <a class="btn" href="{% url 'home' %}">Start shopping</a>
+    </div>
+  {% endfor %}
+</section>
+{% endblock %}

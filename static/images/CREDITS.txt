@@ -1,0 +1,28 @@
+Image credits
+=============
+Fruit, vegetable, meat & dairy cutouts: TheMealDB ingredient images (themealdb.com)
+Beauty products, hand soap, plant pot, house plant: DummyJSON product images (dummyjson.com)
+Basket images (big/large/small_basket.png): supplied by site owner
+Salad plate photo: Unsplash
+Client photos: randomuser.me
+
+Wikimedia Commons (backgrounds removed, resized):
+- ballpoint-pen.png     "Inoxcrom Wall Street. Ballpoint 2.jpg"            CC BY-SA 4.0
+- scissors.png          "Small pair of blue scissors.jpg"                  CC BY-SA 3.0
+- calculator.png        "Casio fx-991ES Calculator New.jpg"                CC BY-SA 3.0
+- colored-pencils.png   "Pencils Standing On White Background (246574375).jpeg"  CC0
+- stapler.png           "2017 Zszywacz biurowy.jpg"                        CC BY-SA 4.0
+- sticky-notes.png      "Post-it notes (9265281815).jpg"                   CC BY 2.0
+- first-aid-kit.png     "Erste Hilfe 003 2026 02 17.jpg"                   CC BY-SA 4.0
+- hand-sanitizer.png    "University Medical Pharmaceuticals Hand Sanitizer (transparent version).png"  CC BY-SA 4.0
+- face-mask.png         "Covid Face mask FFP2 (50577264611).jpg"           CC BY 2.0
+- vitamin-c.png         "Redoxon Double Action Vitamin C standard tablets .jpg"  CC BY-SA 4.0
+- pacifier-pink.png     "Pacifier for newborn, 2015-07-12.jpg"             CC BY-SA 4.0
+- baby-wipes.png        "Антистатические салфетки.jpg"                     CC BY-SA 3.0
+- kids-toothbrush.png   "Toothbrush BNC.jpg"                               GFDL 1.2
+- baby-lotion.png       "Shampoo Bottle made of PLA-Blend Bio-Flex.jpg"    CC BY-SA 3.0 DE
+- body-wash.png         "Green shampoo bottle.jpg"                         CC BY-SA 4.0
+- watering-can.png      "Watercan.png"                                     CC BY-SA 2.5
+- garden-gloves.png     "Cryo protecting gloves.jpg"                       CC BY-SA 3.0
+- hand-trowel.png       "Masons trowel.jpg"                                CC BY-SA 3.0
+Source pages: https://commons.wikimedia.org/wiki/File:<file name>

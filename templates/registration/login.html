@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Log in – eGrocery{% endblock %}
+
+{% block content %}
+<section class="page container auth">
+  <div class="panel auth-card">
+    <span class="logo-mark big"><i class="fa-solid fa-basket-shopping"></i></span>
+    <h1>Welcome back</h1>
+    <p class="muted">Log in to track orders and keep your wishlist.</p>
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="form-error">{% for e in form.non_field_errors %}{{ e }}{% endfor %}</div>{% endif %}
+      <div class="field">
+        <label for="id_username">Username</label>
+        <input type="text" name="username" id="id_username" autocomplete="username" required autofocus value="{{ form.username.value|default:'' }}">
+      </div>
+      <div class="field">
+        <label for="id_password">Password</label>
+        <input type="password" name="password" id="id_password" autocomplete="current-password" required>
+      </div>
+      <input type="hidden" name="next" value="{{ next }}">
+      <button type="submit" class="btn btn-block">Log in <i class="fa-solid fa-arrow-right"></i></button>
+    </form>
+    <p class="switch">New to eGrocery? <a href="{% url 'signup' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Create an account</a></p>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load store_extras %}
+{% block title %}Checkout – eGrocery{% endblock %}
+{% block body_class %}page-checkout{% endblock %}
+
+{% block content %}
+<section class="page container">
+  <div class="page-head">
+    <span class="eyebrow">Almost there</span>
+    <h1>Checkout</h1>
+  </div>
+
+  <div class="checkout">
+    <form method="post" class="panel" novalidate>
+      {% csrf_token %}
+      <h3><i class="fa-solid fa-location-dot"></i> Delivery details</h3>
+      {% if not user.is_authenticated %}
+        <p class="muted">Have an account? <a href="{% url 'login' %}?next={% url 'checkout' %}">Log in</a> to track your orders — or just continue as a guest.</p>
+      {% endif %}
+      {% if form.non_field_errors %}<div class="form-error">{{ form.non_field_errors }}</div>{% endif %}
+
+      <div class="form-grid">
+        {% for field in form %}
+          {% if field.name != "payment_method" %}
+          <div class="field {% if field.name == 'address' or field.name == 'note' %}wide{% endif %} {% if field.errors %}has-error{% endif %}">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% for e in field.errors %}<small class="err">{{ e }}</small>{% endfor %}
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      <h3><i class="fa-solid fa-wallet"></i> Payment</h3>
+      <div class="pay-options">
+        {% for radio in form.payment_method %}
+          <label class="pay-option">
+            {{ radio.tag }}
+            <span><i class="fa-solid {% if forloop.first %}fa-money-bill-wave{% else %}fa-credit-card{% endif %}"></i> {{ radio.choice_label }}</span>
+          </label>
+        {% endfor %}
+      </div>
+
+      <button type="submit" class="btn btn-block place-btn">Place Order · {{ totals.total|inr }} <i class="fa-solid fa-lock"></i></button>
+    </form>
+
+    <aside class="panel summary">
+      <h3><i class="fa-solid fa-basket-shopping"></i> Order summary</h3>
+      <div class="summary-items">
+        {% for product, qty, line in lines %}
+          <div class="line-item">
+            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+            <div class="line-info"><h4>{{ product.name }}</h4><small>{{ qty }} × {{ product.price|inr }} · {{ product.unit }}</small></div>
+            <span class="line-price">{{ line|inr }}</span>
+          </div>
+        {% endfor %}
+      </div>
+      <!-- promo code right here at checkout -->
+      <div class="offers" id="checkoutOffers" hidden></div>
+      {% if totals.promo %}
+        <div class="promo-applied">
+          <i class="fa-solid fa-tag"></i>
+          <span><b>{{ totals.promo }}</b> applied — {{ totals.promo_percent }}% off</span>
+          <button type="button" class="link-btn" id="checkoutPromoRemove">Remove</button>
+        </div>
+      {% else %}
+        <form class="promo" id="checkoutPromo" novalidate>
+          <i class="fa-solid fa-tag"></i>
+          <input type="text" id="checkoutPromoInput" placeholder="Have a promo code?" aria-label="Promo code" autocomplete="off" />
+          <button type="submit">Apply</button>
+        </form>
+      {% endif %}
+      <p class="promo-msg" id="checkoutPromoMsg" {% if not totals.promo_note %}hidden{% endif %}>{{ totals.promo_note }}</p>
+
+      <div class="totals">
+        <div class="row"><span>Subtotal</span><b>{{ totals.subtotal|inr }}</b></div>
+        {% if totals.discount %}<div class="row"><span>Discount <em>{{ totals.promo }}</em></span><b class="green">-{{ totals.discount|inr }}</b></div>{% endif %}
+        <div class="row"><span>Delivery</span>{% if totals.delivery %}<b>{{ totals.delivery|inr }}</b>{% else %}<b class="green">Free</b>{% endif %}</div>
+        <div class="row total"><span>Total</span><b>{{ totals.total|inr }}</b></div>
+      </div>
+      {% if totals.free_left %}<p class="muted small">Add {{ totals.free_left|inr }} more for free delivery.</p>{% endif %}
+      <button type="button" class="btn btn-ghost btn-block" data-open="cartDrawer"><i class="fa-solid fa-pen"></i> Edit cart</button>
+    </aside>
+  </div>
+</section>
+{% endblock %}

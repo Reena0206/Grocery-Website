@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Page not found – eGrocery{% endblock %}
+{% block content %}
+<section class="page container auth">
+  <div class="panel auth-card">
+    <span class="logo-mark big"><i class="fa-solid fa-carrot"></i></span>
+    <h1>Oops, this aisle is empty</h1>
+    <p class="muted">The page you're looking for doesn't exist or was moved.</p>
+    <a class="btn" href="{% url 'home' %}"><i class="fa-solid fa-house"></i> Back to the shop</a>
+  </div>
+</section>
+{% endblock %}

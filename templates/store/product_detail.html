@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load store_extras %}
+{% block title %}{{ product.name }} – eGrocery{% endblock %}
+{% block description %}Buy {{ product.name }} ({{ product.unit }}) for {{ product.price|inr }} with fast delivery from {{ site.store_name }}.{% endblock %}
+
+{% block content %}
+<section class="page container">
+  <nav class="crumbs">
+    <a href="{% url 'home' %}">Home</a><i class="fa-solid fa-chevron-right"></i>
+    <a href="{% url 'shop' %}">Shop</a><i class="fa-solid fa-chevron-right"></i>
+    <a href="{% url 'shop_category' product.category.slug %}">{{ product.category.display_title }}</a><i class="fa-solid fa-chevron-right"></i>
+    <span>{{ product.name }}</span>
+  </nav>
+
+  <div class="pd">
+    <div class="pd-img">
+      {% if product.discount_percent %}<span class="card-badge">-{{ product.discount_percent }}%</span>{% elif product.is_new %}<span class="card-badge new">New</span>{% endif %}
+      <img src="{{ product.image.url }}" alt="{{ product.name }}" />
+    </div>
+    <div class="pd-info">
+      <span class="eyebrow">{{ product.category.display_title }}</span>
+      <h1>{{ product.name }}</h1>
+      <div class="rating"><i class="fa-solid fa-star"></i> {{ product.rating }} <span>· {{ product.unit }}</span></div>
+      <div class="qv-price">
+        <b>{{ product.price|inr }}</b>
+        {% if product.old_price %}<s>{{ product.old_price|inr }}</s>
+          <span class="save">You save {{ product.savings|inr }}</span>{% endif %}
+      </div>
+      <p class="pd-desc" id="pdDesc" data-id="{{ product.id }}">{{ product.description }}</p>
+      <ul class="qv-points" id="pdPoints"></ul>
+
+      {% if product.in_stock %}
+        <p class="stock {% if product.stock < 10 %}low{% endif %}">
+          <i class="fa-solid fa-circle"></i>
+          {% if product.stock < 10 %}Only {{ product.stock }} left — order soon{% else %}In stock{% endif %}
+        </p>
+        <div class="qv-actions">
+          <div class="stepper big">
+            <button type="button" id="pdMinus" aria-label="Decrease">−</button><span id="pdQty">1</span><button type="button" id="pdPlus" aria-label="Increase">+</button>
+          </div>
+          <button class="btn" id="pdAdd" data-id="{{ product.id }}"><i class="fa-solid fa-bag-shopping"></i> Add To Cart</button>
+          <button class="icon-btn pd-wish" data-wish="{{ product.id }}" aria-label="Wishlist"><i class="fa-regular fa-heart"></i></button>
+        </div>
+      {% else %}
+        <p class="stock out"><i class="fa-solid fa-circle"></i> Out of stock</p>
+      {% endif %}
+
+      <div class="pd-perks">
+        <div><i class="fa-solid fa-truck-fast"></i><span>Free delivery over {{ free_delivery_over|inr }}</span></div>
+        <div><i class="fa-solid fa-rotate-left"></i><span>Easy returns</span></div>
+        <div><i class="fa-solid fa-shield-heart"></i><span>Quality guaranteed</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-head" style="margin-top:60px">
+    <div><span class="eyebrow">You may also like</span><h2>More in {{ product.category.display_title }}</h2></div>
+  </div>
+  <div class="product-grid" id="relatedGrid" data-cat="{{ product.category.slug }}" data-exclude="{{ product.id }}"></div>
+</section>
+{% endblock %}
